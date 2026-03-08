@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/confessions/stats/last-hour"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# To run: docker-compose up -d
+# To stop: docker-compose down
+# To view logs: docker-compose logs -f backend

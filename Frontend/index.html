@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Confession Wall</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <div id="toolbar">
+    <button id="viewHistory">View History</button>
+  </div>
+
+  <div id="canvas-container">
+    <h1 id="canvas-heading">IIIT Campus Confession</h1>
+    <div id="canvas"></div>
+  </div>
+
+  <!-- Core Framework -->
+  <script src="/js/core/BaseViewController.js"></script>
+  
+  <!-- Services -->
+  <script src="/js/services/AppService.js"></script>
+  
+  <!-- Views -->
+  <script src="/js/views/StickyNoteView.js"></script>
+  <script src="/js/views/ConfessionModalView.js"></script>
+  
+  <!-- View Controllers -->
+  <script src="/js/viewControllers/CanvasViewController.js"></script>
+  <script src="/js/viewControllers/ConfessionViewController.js"></script>
+  
+  <!-- Application -->
+  <script src="/js/app/AppDelegate.js"></script>
+</body>
+</html>

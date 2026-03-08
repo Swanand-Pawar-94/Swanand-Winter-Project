@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confession Database</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #9c7eff, #7465ff, #ff70f8);
+      padding: 20px;
+    }
+    .history-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #4287f5;
+      padding-bottom: 15px;
+    }
+    .history-header h1 {
+      margin: 0;
+      color: #333;
+    }
+    .back-btn {
+      padding: 10px 20px;
+      background-color: #4287f5;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .back-btn:hover {
+      background-color: #2a5db0;
+    }
+  </style>
+</head>
+<body>
+  <div class="history-container">
+    <div class="history-header">
+      <h1>Confessions Database</h1>
+      <button class="back-btn" onclick="window.location.href='index.html'">← Back to Canvas</button>
+    </div>
+    
+    <div id="confessionsTable"></div>
+    
+    <div class="history-controls">
+      <button id="deleteHistoryBtn" class="delete-history-btn">Delete All Confessions</button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = '/api';
+
+    async function loadConfessions() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/confessions`);
+        if (response.ok) {
+          const confessions = await response.json();
+          displayConfessionsTable(confessions);
+        }
+      } catch (error) {
+        console.error('Error loading confessions:', error);
+        document.getElementById('confessionsTable').innerHTML = 
+          '<p class="error">Error loading confessions</p>';
+      }
+    }
+
+    function displayConfessionsTable(confessions) {
+      const container = document.getElementById('confessionsTable');
+      
+      if (!confessions || confessions.length === 0) {
+        container.innerHTML = '<p class="no-confessions">No confessions yet</p>';
+        return;
+      }
+
+      let html = `
+        <table class="confession-table">
+          <thead>
+            <tr>
+              <th width="10%">ID</th>
+              <th width="20%">Writer Name</th>
+              <th width="25%">Writer Email</th>
+              <th width="45%">Confession Text</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      confessions.forEach(confession => {
+        //const id = confession.id ? confession.id.substring(0, 8) : 'N/A';
+        const id = confession.id;
+        const name = confession.writerName || 'Anonymous';
+        const email = confession.writerEmail || '-';
+        const text = (confession.text || '').substring(0, 100);
+        const fullText = confession.text || '';
+
+        html += `
+          <tr title="${fullText}">
+            <td><code>${id}...</code></td>
+            <td>${escapeHtml(name)}</td>
+            <td>${escapeHtml(email)}</td>
+            <td>${escapeHtml(text)}${fullText.length > 100 ? '...' : ''}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function deleteAllConfessions() {
+      if (confirm('Are you sure you want to delete all confessions? This cannot be undone.')) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/confessions/all`, {
+            method: 'DELETE'
+          });
+          if (response.ok) {
+            alert('All confessions deleted');
+            loadConfessions();
+          }
+        } catch (error) {
+          alert('Error deleting confessions');
+          console.error('Error:', error);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadConfessions();
+      document.getElementById('deleteHistoryBtn').addEventListener('click', deleteAllConfessions);
+    });
+  </script>
+</body>
+</html>

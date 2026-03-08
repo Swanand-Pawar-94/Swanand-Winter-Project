@@ -1,0 +1,156 @@
+ Campus Confession Wall - Application Documentation
+
+Problem Statement
+
+University campuses are places where students experience a myriad of emotions, challenges, and thoughts that they often hesitate to share openly due to fear of judgment or social stigma. Traditional social platforms lack anonymity and can be intimidating for genuine self-expression. Students need a safe, anonymous space to:
+
+- Share their true feelings and experiences without fear of identification
+- Connect with peers who may be experiencing similar challenges
+- Seek support and advice from the campus community
+- Express thoughts and confessions that would be difficult to share in person
+- Create a sense of community and belonging through anonymous sharing
+
+**Current Gap:** No dedicated platform exists on campus that provides:
+- Full anonymity for confessions
+- Persistent, organized storage of confessions
+- Easy accessibility and intuitive interface
+- Tracking of confessor information for follow-up (optional, with consent)
+
+---
+
+Proposed Solution
+
+**Campus Confession Wall** is a web-based application that provides a safe, anonymous platform for students to share confessions, thoughts, and experiences. The application features:
+
+Core Concept:
+A **virtual sticky note wall** where users can:
+1. Create sticky notes directly on a canvas
+2. Write anonymous confessions in real-time
+3. Optionally provide their name and email for contact purposes
+4. View all confessions in a database table format
+5. Permanently pin confessions to the wall
+
+Technical Architecture:
+- **Frontend:** Interactive HTML/CSS/JavaScript application with drag-and-drop sticky note creation
+- **Backend:** Node.js/Express server with SQLite database
+- **Database:** Persistent storage of all confessions with confessor information
+- **API:** RESTful endpoints for confession management
+
+---
+
+Key Features
+
+1. **Anonymous Sticky Note Creation**
+   - Drag on canvas to create sticky notes of custom size
+   - Write confessions directly in the note
+   - Multiple colors for different emotional tones
+   - Full-screen canvas interface for immersive experience
+
+2. **Confessor Information Collection**
+   - Popup modal after writing confession
+   - Optional writer name (defaults to "Anonymous")
+   - Email address for optional contact/follow-up
+   - Automatically displays Confession ID
+
+3. **Persistent Story Saving**
+   - All confessions saved to SQLite database
+   - Database fields:
+     - Confession ID (Primary Key)
+     - Confession Text
+     - Writer Name
+     - Writer Email
+     - Timestamp
+   - Automatic updates with each new confession
+
+4. **Pinned Note Visualization**
+   - Confessions appear as pinned papers on canvas
+   - Red pin indicator at top of note
+   - Shadow effects for 3D appearance
+   - Notes are read-only after submission
+   - Permanent display on the wall
+
+5. **Database Table View (History)**
+   - Clean, organized table display
+   - Columns: ID, Writer Name, Email, Confession Text
+   - Search/filter capabilities
+   - Sortable columns
+   - Professional UI for viewing all confessions
+
+6. **Single URL Access**
+   - Entire application accessible from one URL
+   - No complex setup required
+   - Frontend served from backend
+   - Seamless user experience
+
+7. **RESTful API Endpoints**
+   - `GET /api/confessions` - Fetch all confessions
+   - `POST /api/confessions` - Create new confession
+   - `PUT /api/confessions/:id` - Update confession
+   - `DELETE /api/confessions/:id` - Delete confession
+   - `DELETE /api/confessions/all` - Clear all confessions
+
+8. **Data Persistence**
+   - SQLite database for reliable storage
+   - Automatic table creation on first run
+   - Data survives application restarts
+   - Full historical record maintained
+
+9. **User Privacy & Anonymity**
+   - Optional authentication (no forced login)
+   - Anonymous by default
+   - Email collection is voluntary
+   - No user tracking or cookies
+   - Server-side logging for debugging only
+
+10. **Intuitive User Interface**
+   - Drag-and-drop sticky note creation
+   - Colorful, engaging visual design
+   - Modal popup for information entry
+   - One-click access to confession history
+   - Responsive and accessible design
+
+---
+
+Technology Stack
+
+| Component             | Technology                         |
+| Frontend              | HTML5, CSS3, JavaScript (Vanilla)  |
+| Backend               | Node.js, Express.js                |
+| Database              | SQLite3                            |
+| Server Port           | 5500                               |
+| Architecture          | Full-stack Single Page Application |
+
+---
+
+Workflow
+
+1. **User opens** `http://localhost:5500`
+2. **Drags on canvas** to create a sticky note
+3. **Types confession** into the sticky note
+4. **Clicks "Next →"** button
+5. **Fills out popup** with optional name and email
+6. **Clicks "Submit"** to save to database
+7. **Sticky note transforms** to a pinned paper on wall
+8. **User can visit history page** to see all confessions in table format
+
+---
+
+Database Schema
+
+Confessions Table
+```
+CREATE TABLE confessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  text TEXT NOT NULL,
+  writerName TEXT DEFAULT 'Anonymous',
+  writerEmail TEXT,
+  stickyNoteId INTEGER,
+  timestamp BIGINT NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (stickyNoteId) REFERENCES stickynotes(id)
+)
+```
+
+---
+
