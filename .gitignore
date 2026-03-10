@@ -6,6 +6,7 @@ yarn-error.log*
 
 # Database
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3
 database.db
