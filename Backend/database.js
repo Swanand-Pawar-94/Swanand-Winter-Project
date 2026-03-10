@@ -50,12 +50,27 @@ function initializeDatabase() {
       writerEmail TEXT,
       stickyNoteId INTEGER,
       timestamp BIGINT NOT NULL,
+      likes INTEGER DEFAULT 0,
+      isPinned INTEGER DEFAULT 0,
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (stickyNoteId) REFERENCES stickynotes(id) ON DELETE CASCADE
     )
   `, (err) => {
     if (err) console.error('Error creating confessions table:', err);
+  });
+
+  // Add likes and isPinned columns to existing databases
+  db.run(`ALTER TABLE confessions ADD COLUMN likes INTEGER DEFAULT 0`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error('Error adding likes column:', err);
+    }
+  });
+
+  db.run(`ALTER TABLE confessions ADD COLUMN isPinned INTEGER DEFAULT 0`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error('Error adding isPinned column:', err);
+    }
   });
 
   console.log('Database tables initialized');

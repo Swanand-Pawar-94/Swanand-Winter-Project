@@ -259,6 +259,48 @@ app.delete('/api/confessions/all', (req, res) => {
   });
 });
 
+// LIKE a confession (increment likes count)
+app.post('/api/confessions/:id/like', (req, res) => {
+  const { id } = req.params;
+
+  db.run(
+    'UPDATE confessions SET likes = likes + 1, updatedAt = CURRENT_TIMESTAMP WHERE id = ?',
+    [id],
+    function(err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      // Get updated confession
+      db.get('SELECT * FROM confessions WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        res.json({ message: 'Confession liked', confession: row });
+      });
+    }
+  );
+});
+
+// PIN/UNPIN a confession
+app.post('/api/confessions/:id/pin', (req, res) => {
+  const { id } = req.params;
+  const { isPinned } = req.body;
+
+  db.run(
+    'UPDATE confessions SET isPinned = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?',
+    [isPinned ? 1 : 0, id],
+    function(err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({ message: isPinned ? 'Confession pinned' : 'Confession unpinned', id: parseInt(id) });
+    }
+  );
+});
+
 // ==================== Server startup ====================
 
 // Create HTTP server with Socket.io
