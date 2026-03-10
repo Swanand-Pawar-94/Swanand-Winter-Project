@@ -1,5 +1,7 @@
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const dataDir = path.join(__dirname, '../data');
 
@@ -12,6 +14,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const db = require('./database');
+const CollaborativeSyncManager = require('./collaboration');
 
 const app = express();
 const PORT = process.env.PORT || 5500;
@@ -258,10 +261,21 @@ app.delete('/api/confessions/all', (req, res) => {
 
 // ==================== Server startup ====================
 
-app.listen(PORT, () => {
-  console.log(`Campus Confession Wall backend running on port ${PORT}`);
-  console.log(`API endpoints:`);
-  console.log(`  GET    /api/stickynotes`);
+// Create HTTP server with Socket.io
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+// Initialize collaborative sync manager
+const syncManager = new CollaborativeSyncManager(io, db);
+
+server.listen(PORT, () => {
+  console.log(`Campus Confession Wall backend running on port ${PORT}`);        
+  console.log(`WebSocket collaboration enabled`);
   console.log(`  POST   /api/stickynotes`);
   console.log(`  PUT    /api/stickynotes/:id`);
   console.log(`  DELETE /api/stickynotes/:id`);

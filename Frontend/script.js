@@ -150,6 +150,11 @@ class StickyNoteApp {
     // Update position in data
     this.selectedNote.x = Math.max(0, newX);
     this.selectedNote.y = Math.max(0, newY);
+    
+    // Emit cursor position for presence awareness
+    if (window.collaborativeSync) {
+      window.collaborativeSync.emitCursorPosition(e.clientX, e.clientY);
+    }
   }
 
   stopDragging() {
@@ -230,6 +235,11 @@ class StickyNoteApp {
         noteData.tempId = noteData.id; // Store temp ID for later
         this.renderStickyNote(noteData);
         // Don't show popup yet - wait for user to write and click Next
+        
+        // Emit collaboration event
+        if (window.collaborativeSync) {
+          window.collaborativeSync.emitNoteCreate(noteData);
+        }
       }
     } catch (error) {
       console.error('Error creating sticky note:', error);
@@ -571,6 +581,11 @@ class StickyNoteApp {
 
         // Remove from local array
         this.stickyNotes = this.stickyNotes.filter(note => note.id !== id);
+        
+        // Emit collaboration event
+        if (window.collaborativeSync) {
+          window.collaborativeSync.emitNoteDelete(id);
+        }
       }
     } catch (error) {
       console.error('Error deleting sticky note:', error);
