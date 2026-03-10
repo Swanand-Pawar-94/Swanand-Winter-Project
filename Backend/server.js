@@ -1,18 +1,17 @@
-const fs = require('fs');
-const dataDir = path.join(__dirname, '../data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+const path = require('path');
+const dataDir = path.join(__dirname, 'Backend');
+if (!path.existsSync(dataDir)) {
+  path.mkdirSync(dataDir, { recursive: true });
 }
 
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 require('dotenv').config();
 const db = require('./database');
 
 const app = express();
-const PORT = process.env.PORT || 5500;
+const PORT = process.env.PORT || 5500; 
 
 // 1. Tell Express where your static files (CSS, JS) are
 // We go up one level from Backend then into Frontend
