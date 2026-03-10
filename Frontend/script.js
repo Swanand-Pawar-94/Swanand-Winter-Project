@@ -25,8 +25,11 @@ class StickyNoteApp {
   }
 
   setupEventListeners() {
+    // Canvas container for infinite scrolling
+    this.canvasContainer = document.getElementById('canvas-container');
+    
     // Canvas events for creating sticky notes
-    this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+    this.canvasContainer.addEventListener('mousedown', this.handleMouseDown.bind(this));
     document.addEventListener('mousemove', this.handleMouseMove.bind(this));
     document.addEventListener('mouseup', this.handleMouseUp.bind(this));
 
@@ -43,10 +46,29 @@ class StickyNoteApp {
     });
   }
 
+  /**
+   * Get scroll offset from canvas container
+   */
+  getScrollOffset() {
+    const container = document.getElementById('canvas-container');
+    return {
+      left: container.scrollLeft,
+      top: container.scrollTop
+    };
+  }
+
   handleMouseDown(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // Don't create notes if clicking on toolbar buttons or text areas
+    if (e.target.closest('#viewHistory') || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    const container = document.getElementById('canvas-container');
+    const scrollOffset = this.getScrollOffset();
+    
+    // Get position relative to canvas, accounting for scroll
+    const x = e.clientX - container.getBoundingClientRect().left + scrollOffset.left;
+    const y = e.clientY - container.getBoundingClientRect().top + scrollOffset.top;
 
     // Check if clicking on existing sticky note
     const clickedNote = this.getStickyNoteAt(x, y);
@@ -63,11 +85,12 @@ class StickyNoteApp {
     // Create drag preview
     this.dragPreview = document.createElement('div');
     this.dragPreview.className = 'drag-preview';
+    this.dragPreview.style.position = 'absolute';
     this.dragPreview.style.left = x + 'px';
     this.dragPreview.style.top = y + 'px';
     this.dragPreview.style.width = '0px';
     this.dragPreview.style.height = '0px';
-    document.body.appendChild(this.dragPreview);
+    this.canvas.appendChild(this.dragPreview);
   }
 
   handleMouseMove(e) {
@@ -100,9 +123,12 @@ class StickyNoteApp {
     this.isDragging = true;
     this.selectedNote = note;
 
-    const rect = this.canvas.getBoundingClientRect();
-    this.dragOffset.x = e.clientX - rect.left - note.x;
-    this.dragOffset.y = e.clientY - rect.top - note.y;
+    const container = document.getElementById('canvas-container');
+    const scrollOffset = this.getScrollOffset();
+    const containerRect = container.getBoundingClientRect();
+    
+    this.dragOffset.x = e.clientX - containerRect.left + scrollOffset.left - note.x;
+    this.dragOffset.y = e.clientY - containerRect.top + scrollOffset.top - note.y;
 
     const noteElement = document.querySelector(`[data-id="${note.id}"]`);
     noteElement.style.zIndex = '100';
@@ -110,9 +136,12 @@ class StickyNoteApp {
   }
 
   handleDragMove(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const newX = e.clientX - rect.left - this.dragOffset.x;
-    const newY = e.clientY - rect.top - this.dragOffset.y;
+    const container = document.getElementById('canvas-container');
+    const scrollOffset = this.getScrollOffset();
+    const containerRect = container.getBoundingClientRect();
+    
+    const newX = e.clientX - containerRect.left + scrollOffset.left - this.dragOffset.x;
+    const newY = e.clientY - containerRect.top + scrollOffset.top - this.dragOffset.y;
 
     const noteElement = document.querySelector(`[data-id="${this.selectedNote.id}"]`);
     noteElement.style.left = Math.max(0, newX) + 'px';
@@ -140,9 +169,12 @@ class StickyNoteApp {
   }
 
   handleCreateMove(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const currentX = e.clientX - rect.left;
-    const currentY = e.clientY - rect.top;
+    const container = document.getElementById('canvas-container');
+    const scrollOffset = this.getScrollOffset();
+    const containerRect = container.getBoundingClientRect();
+    
+    const currentX = e.clientX - containerRect.left + scrollOffset.left;
+    const currentY = e.clientY - containerRect.top + scrollOffset.top;
 
     const width = Math.abs(currentX - this.startX);
     const height = Math.abs(currentY - this.startY);
